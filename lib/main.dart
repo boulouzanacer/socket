@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:platform_device_id/platform_device_id.dart';
@@ -78,6 +79,7 @@ class _MyHomePageState extends State<MyHomePage> {
   ScrollController _scrollcontroller = ScrollController();
   int currentIndex = 0;
   DateFormat format = DateFormat("dd/MM/yyyy");
+  bool _isfloatingVisible = false;
 
   @override
   void initState() {
@@ -94,30 +96,41 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _onScrollEvent() {
     final extentAfter = _scrollcontroller.position.extentAfter;
-    print("Extent after: $extentAfter");
+    if(extentAfter < 80){
+      _panelController!.hide();
+      setState(() {
+        _isfloatingVisible = true;
+      });
+    }else{
+      _panelController!.show();
+      setState(() {
+        _isfloatingVisible = false;
+      });
+    }
     t.cancel();
     t = Timer(Duration(seconds: 15), () {
       setState(() {
         isshowResult = false;
+        _isfloatingVisible = false;
+        _panelController!.show();
         _response = new PostDataAllResult();
       });
     });
 
-    _panelController!.hide();
   }
+
 
   @override
   Future<void> didChangeDependencies() async {
-
     deviceId  = await PlatformDeviceId.getDeviceId;
     if(Platform.isAndroid){
       _Platform = "ANDROID";
     }else{
       _Platform = "IOS";
     }
-
     super.didChangeDependencies();
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -189,31 +202,26 @@ class _MyHomePageState extends State<MyHomePage> {
           panelBuilder: showInsertCode,
           collapsed: _floatingCollapsed(),
           body: isshowResult ? showResult() : ScanWidget(),
-        )
-
-    /*  Column(
-    children: [
-    Expanded(
-    child: Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          fit: BoxFit.fill,
-          opacity: 0.2,
-          // colorFilter: new ColorFilter.mode(Colors.transparent.withOpacity(0.2), BlendMode.darken),
-          image: AssetImage('assets/images/souma_background.png'),
+        ),
+      floatingActionButton: new Visibility(
+        visible: _isfloatingVisible,
+        child: new FloatingActionButton(
+          backgroundColor: Colors.blue,
+          onPressed: _goToTop,
+          child: new Icon(Icons.upgrade),
         ),
       ),
-      child: isshowResult ? showResult() : ScanWidget(),
-    ),
-    ),
-    /// Below container will go to bottom
-    showInsertCode()
-    ],
-    ),*/
     );
   }
 
+  void _goToTop(){
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      _scrollcontroller.animateTo(
+          _scrollcontroller.position.minScrollExtent,
+          duration: const Duration(milliseconds: 1000),
+          curve: Curves.fastOutSlowIn);
+    });
+  }
   Widget _floatingCollapsed(){
     return Container(
       decoration: BoxDecoration(
@@ -599,6 +607,8 @@ class _MyHomePageState extends State<MyHomePage> {
           t = Timer(Duration(seconds: 15), () {
             setState(() {
               isshowResult = false;
+              _isfloatingVisible = false;
+              _panelController!.show();
               _response = new PostDataAllResult();
             });
           });
