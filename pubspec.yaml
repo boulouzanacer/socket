@@ -1,0 +1,41 @@
+name: socket
+description: "A new Flutter project."
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 23.8.0
+
+environment:
+  sdk: '>=3.1.0-315.0.dev <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.6
+  google_fonts: ^6.1.0
+  qr_code_scanner: ^1.0.1
+  charset_converter: ^2.1.1
+  pull_to_refresh: ^2.0.0
+  easy_localization: ^3.0.3
+  turn_page_transition: ^0.3.0
+  custom_clippers: ^2.0.0
+  flutter_page_view_indicator: ^0.0.5
+  ai_barcode_scanner: ^3.4.1
+  platform_device_id: ^1.0.1
+  flutter_barcode_scanner: ^2.0.0
+  sliding_up_panel2: ^3.3.0+1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+flutter_app_name:
+  name: "souma"
+
+flutter_launcher_name:
+  name: "souma"
+  flutter_lints: ^3.0.1
+
+flutter:
+
+  uses-material-design: true
+  assets: [assets/images/, assets/langs/]

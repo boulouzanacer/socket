@@ -1,0 +1,38 @@
+{
+  "app_name": "Souma",
+  "promos": "Promos",
+  "notifications": "Notifications",
+  "help": "Aide",
+  "about_us": "A propos",
+  "rate_us": "Votez",
+  "done": "Valider",
+  "error_server": "Problème avec le serveur. Ressayer svp !",
+  "connexion_terminated": "Connection terminer.",
+  "search": "Rechercher ...",
+  "market_code": "CODE MAGAZIN : ",
+  "region": "COMMUNE : ",
+  "state": "WILAYA : ",
+  "global_market": "Magazin global",
+  "global": "Tous",
+  "error_code_barre": "Code Barre est obligatoire !",
+  "scan_product": "Scanner produit",
+  "no_result_product": "Aucune résultat disponible pour ce produit",
+  "last_update": "Dernière mise à jour : ",
+  "loading": "Chargement magasins ...",
+  "scanner_product": "Scanner code produit",
+  "scanner_qr": "Scanner code magazin",
+  "error_code_market": "Qr code does not belong to SOUMA application",
+  "help_manual_scan": "Pour voir votre résultat manuellement sans scanner, veuillez introduire le code de votre produit ici et clickez valider",
+
+  "current": "Page actuel",
+  "logout": "Déconnecté",
+  "login": "Connexion",
+  "code_client": "Code client",
+  "password": "Mot de passe",
+  "error_password": "Mot de passe est obligatoire !",
+  "auto_connecte": "Connexion automatique ?",
+  "error_message_rouge": "Svp fixez les problèmes en rouge avant commancer !",
+  "error_code_or_password": "Code client ou Mot de passe incorrect !"
+
+
+}

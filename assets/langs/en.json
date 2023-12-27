@@ -1,0 +1,36 @@
+{
+  "app_name": "Souma",
+  "promos": "Promos",
+  "notifications": "Notifications",
+  "help": "Help",
+  "about_us": "About Us",
+  "rate_us": "Rate Us",
+
+  "done": "Done",
+  "error_server": "Problem with server. Retry please !",
+  "connexion_terminated": "Connection has terminated.",
+  "search": "Search ...",
+  "market_code": "STORE CODE : ",
+  "region": "REGION : ",
+  "state": "STATE : ",
+  "global_market": "Global market",
+  "global": "Global",
+  "error_code_barre": "Codebarre is required !",
+  "scan_product": "Scan product",
+  "no_result_product": "Actually, No result for this product",
+  "last_update": "Last update : ",
+  "loading": "Loading markets ...",
+  "scanner_product": "Scan product code",
+  "scanner_qr": "Scan market code",
+  "error_code_market": "Doesn't SOUMA's qr code",
+  "help_manual_scan": "To get your result manualy without scanning, please insert the code of your product here and tap validate",
+
+  "login": "Login",
+  "code_client": "Client code",
+  "password": "Password",
+  "error_password": "Password is required !",
+  "auto_connecte": "Auto connecte ?",
+  "error_message_rouge": "Please fix red error before continue !",
+  "error_code_or_password": "Wrrong client code or password !"
+
+}

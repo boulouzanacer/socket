@@ -1,0 +1,38 @@
+{
+  "app_name": "سومة",
+  "promos": "خصم",
+  "notifications": "إشعارات",
+  "help": "مساعدة",
+  "about_us": "معلومات عنا",
+  "rate_us": "قيمنا",
+  "done": "موافق",
+  "error_server": "عطل مع الخادم ..حاول مجددا",
+  "connexion_terminated": "إنتهاء الإتصال",
+  "search": "بحث ...",
+  "market_code": "رقم المتجر : ",
+  "region": "البلدية : ",
+  "state": "الولاية : ",
+  "global_market": "كل المتاجر",
+  "global": "الكل",
+  "error_code_barre": "يجب إدخال كود بار المنتج",
+  "scan_product": "مسح المنتج",
+  "no_result_product": "لا توجد  حالبا نتائج لهذا المنتح",
+  "last_update": "أخر تحديث : ",
+  "loading": "تحميل المحلات ...",
+  "scanner_product": "امسح كود المنتج",
+  "scanner_qr": "إمسح كود المحل",
+  "error_code_market": "كود بار لا ينتمي الي تطبيق 'سومة'",
+  "help_manual_scan": "لرؤية النتيجة يدويًا دون إجراء مسح ضوئي للكمنتج، يرجى إدخال رمز المنتج الخاص بك هنا والنقر علي زر التحقق",
+
+  "current": "الصفحه الحاليه",
+  "logout": "تسجيل خروج",
+  "login": "تسجيل دخول",
+  "code_client": "رقم التسجيل",
+  "password": "كلمة السر",
+  "error_password": "يجل إدخال كلمة السر",
+  "auto_connecte": "تسجيل دخول دائم ؟",
+  "error_message_rouge": "صحح الأخطاء الحمراء قبل المواصلة !",
+  "error_code_or_password": "خطأ في كود التفعيل او كلمة السر"
+
+
+}
