@@ -1,4 +1,4 @@
-name: socket
+name: souma
 description: "A new Flutter project."
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
@@ -24,6 +24,7 @@ dependencies:
   platform_device_id: ^1.0.1
   flutter_barcode_scanner: ^2.0.0
   sliding_up_panel2: ^3.3.0+1
+  floating_frosted_bottom_bar: ^0.0.1
 
 dev_dependencies:
   flutter_test:

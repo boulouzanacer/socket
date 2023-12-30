@@ -6,8 +6,8 @@ import 'package:custom_clippers/custom_clippers.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
-import 'package:socket/Env.dart';
-import 'package:socket/models/PostData_Market.dart';
+import 'package:souma/Env.dart';
+import 'package:souma/models/PostData_Market.dart';
 
 class ListMarket extends StatefulWidget {
   const ListMarket({Key? key}) : super(key: key);

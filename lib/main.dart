@@ -3,15 +3,17 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:floating_frosted_bottom_bar/app/frosted_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:platform_device_id/platform_device_id.dart';
 import 'package:sliding_up_panel2/sliding_up_panel2.dart';
-import 'package:socket/Env.dart';
-import 'package:socket/models/PostData_All_Result.dart';
-import 'package:socket/models/PostData_Market.dart';
+import 'package:souma/Env.dart';
+import 'package:souma/models/PostData_All_Result.dart';
+import 'package:souma/models/PostData_Market.dart';
+import 'package:souma/utils/TabsIcon.dart';
 import 'package:turn_page_transition/turn_page_transition.dart';
 import 'listmarket.dart';
 
@@ -60,7 +62,7 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateMixin{
 
   String? deviceId = 'UNKNOWN';
   String _Platform = 'UNKNOWN';
@@ -74,20 +76,45 @@ class _MyHomePageState extends State<MyHomePage> {
   final List<Widget> fancyCards = [];
 
   TextEditingController codebarreController = TextEditingController();
-  PageController? _pageController = PageController(viewportFraction: 0.8, keepPage: true);
   PanelController? _panelController = PanelController();
   ScrollController _scrollcontroller = ScrollController();
   int currentIndex = 0;
   DateFormat format = DateFormat("dd/MM/yyyy");
   bool _isfloatingVisible = false;
+  late int currentPage;
+  late TabController tabController;
+  final List<Color> colors = [
+    Colors.blue,
+    Colors.blue,
+    Colors.blue,
+    Colors.blue,
+    Colors.blue
+  ];
 
   @override
   void initState() {
-    super.initState();
+    currentPage = 0;
+    tabController = TabController(length: 5, vsync: this);
+    tabController.animation!.addListener(
+          () {
+        final value = tabController.animation!.value.round();
+        if (value != currentPage && mounted) {
+          changePage(value);
+        }
+      },
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) {});
     _response = new PostDataAllResult();
     _scrollcontroller.addListener(_onScrollEvent);
+    super.initState();
   }
+
+  void changePage(int newPage) {
+    setState(() {
+      currentPage = newPage;
+    });
+  }
+
   @override
   void dispose() {
     _scrollcontroller.removeListener(_onScrollEvent);
@@ -250,44 +277,49 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget showResult(){
 
-    return ListView.builder(
-      controller: _scrollcontroller,
-      itemCount: int.parse(_response.COUNT!),
-        itemBuilder: (BuildContext context, int index) {
-          return resultPage(index);
-        },
-    );
-   /* return Stack(
-      clipBehavior: Clip.hardEdge,
-      children: [
-        PageView.builder(
-          controller: _pageController,
-          itemCount: int.parse(_response.COUNT!),
-          itemBuilder: (BuildContext context, int index) {
-            return resultPage(index);
-          },
-          onPageChanged: (int index) {
-            setState(() {
-              currentIndex = index;
-            });
-            t.cancel();
-            t = Timer(Duration(seconds: 15), () {
-              setState(() {
-                isshowResult = false;
-                _response = new PostDataAllResult();
-              });
-            });
-          },
+    //_panelController!.hide();
+
+    return FrostedBottomBar(
+      opacity: 0.6,
+      sigmaX: 5,
+      sigmaY: 5,
+      child: TabBar(
+        indicatorPadding: const EdgeInsets.fromLTRB(6, 0, 6, 0),
+        controller: tabController,
+        indicator: const UnderlineTabIndicator(
+          borderSide: BorderSide(color: Colors.blue, width: 4),
+          insets: EdgeInsets.fromLTRB(16, 0, 16, 8),
         ),
-        Transform.translate(
-          offset: Offset(0, 600),
-          child: PageViewIndicator(
-            length: int.parse(_response.COUNT!),
-            currentIndex: currentIndex,
+        tabs: [
+          TabsIcon(
+              icons: Icons.home,
+              color: currentPage == 0 ? colors[0] : Colors.white),
+          TabsIcon(
+              icons: Icons.search,
+              color: currentPage == 1 ? colors[1] : Colors.white),
+          TabsIcon(
+              icons: Icons.queue_play_next,
+              color: currentPage == 2 ? colors[2] : Colors.white),
+          TabsIcon(
+              icons: Icons.file_download,
+              color: currentPage == 3 ? colors[3] : Colors.white),
+          TabsIcon(
+              icons: Icons.menu,
+              color: currentPage == 4 ? colors[4] : Colors.white),
+        ],
+      ),
+      borderRadius: BorderRadius.circular(500),
+      duration: const Duration(milliseconds: 800),
+      hideOnScroll: true,
+      body: (context, controller) =>
+          ListView.builder(
+            controller: controller,
+            itemCount: int.parse(_response.COUNT!),
+            itemBuilder: (BuildContext context, int index) {
+              return resultPage(index);
+            },
           ),
-        ),
-      ],
-    );*/
+    );
 
   }
 
@@ -443,6 +475,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget ScanWidget(){
+    _panelController!.show();
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
