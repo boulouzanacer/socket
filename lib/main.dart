@@ -1,19 +1,20 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 import 'dart:typed_data';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:floating_frosted_bottom_bar/app/frosted_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:platform_device_id/platform_device_id.dart';
+import 'package:rotated_corner_decoration/rotated_corner_decoration.dart';
 import 'package:sliding_up_panel2/sliding_up_panel2.dart';
 import 'package:souma/Env.dart';
 import 'package:souma/models/PostData_All_Result.dart';
 import 'package:souma/models/PostData_Market.dart';
-import 'package:souma/utils/TabsIcon.dart';
+import 'package:transformable_list_view/transformable_list_view.dart';
 import 'package:turn_page_transition/turn_page_transition.dart';
 import 'listmarket.dart';
 
@@ -81,38 +82,13 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   int currentIndex = 0;
   DateFormat format = DateFormat("dd/MM/yyyy");
   bool _isfloatingVisible = false;
-  late int currentPage;
-  late TabController tabController;
-  final List<Color> colors = [
-    Colors.blue,
-    Colors.blue,
-    Colors.blue,
-    Colors.blue,
-    Colors.blue
-  ];
 
   @override
   void initState() {
-    currentPage = 0;
-    tabController = TabController(length: 5, vsync: this);
-    tabController.animation!.addListener(
-          () {
-        final value = tabController.animation!.value.round();
-        if (value != currentPage && mounted) {
-          changePage(value);
-        }
-      },
-    );
     WidgetsBinding.instance.addPostFrameCallback((_) {});
     _response = new PostDataAllResult();
     _scrollcontroller.addListener(_onScrollEvent);
     super.initState();
-  }
-
-  void changePage(int newPage) {
-    setState(() {
-      currentPage = newPage;
-    });
   }
 
   @override
@@ -125,6 +101,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     final extentAfter = _scrollcontroller.position.extentAfter;
     if(extentAfter < 80){
       _panelController!.hide();
+
       setState(() {
         _isfloatingVisible = true;
       });
@@ -195,6 +172,8 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
             },
           ),
           PopupMenuButton<String>(
+            color: Colors.blue,
+            splashRadius: 40,
             onSelected: (String value) {
               if(value == "1"){
                 reOrderByPrice();
@@ -209,15 +188,16 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
             itemBuilder: (BuildContext context) => [
               PopupMenuItem(
                 value: '1',
-                child: Text('By price'),
+                child: Text(tr('by_price'), style: TextStyle(color: Colors.white),),
               ),
               PopupMenuItem(
                 value: '2',
-                child: Text('By region'),
+                child: Text(tr('by_date'), style: TextStyle(color: Colors.white),),
               ),
               PopupMenuItem(
                 value: '3',
-                child: Text('By date'),
+                child: Text(tr('by_region'), style: TextStyle(color: Colors.white),),
+
               ),
             ],
           )
@@ -249,6 +229,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
           curve: Curves.fastOutSlowIn);
     });
   }
+
   Widget _floatingCollapsed(){
     return Container(
       decoration: BoxDecoration(
@@ -262,13 +243,13 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
           children: [
             Text(current_market_name, textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white),),
             SizedBox(height: 5,),
-            _response.COUNT == null ?
+            _response.RST == "0" ?
             Visibility(
               child: Text(""),
               visible: false,
             )
             :
-            Text("Result : " + _response.COUNT!, textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white),),
+            Text("Result : " + _response.COUNT, textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white),),
           ],
         )
       ),
@@ -276,51 +257,70 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   }
 
   Widget showResult(){
-
-    //_panelController!.hide();
-
-    return FrostedBottomBar(
-      opacity: 0.6,
-      sigmaX: 5,
-      sigmaY: 5,
-      child: TabBar(
-        indicatorPadding: const EdgeInsets.fromLTRB(6, 0, 6, 0),
-        controller: tabController,
-        indicator: const UnderlineTabIndicator(
-          borderSide: BorderSide(color: Colors.blue, width: 4),
-          insets: EdgeInsets.fromLTRB(16, 0, 16, 8),
-        ),
-        tabs: [
-          TabsIcon(
-              icons: Icons.home,
-              color: currentPage == 0 ? colors[0] : Colors.white),
-          TabsIcon(
-              icons: Icons.search,
-              color: currentPage == 1 ? colors[1] : Colors.white),
-          TabsIcon(
-              icons: Icons.queue_play_next,
-              color: currentPage == 2 ? colors[2] : Colors.white),
-          TabsIcon(
-              icons: Icons.file_download,
-              color: currentPage == 3 ? colors[3] : Colors.white),
-          TabsIcon(
-              icons: Icons.menu,
-              color: currentPage == 4 ? colors[4] : Colors.white),
-        ],
-      ),
-      borderRadius: BorderRadius.circular(500),
-      duration: const Duration(milliseconds: 800),
-      hideOnScroll: true,
-      body: (context, controller) =>
-          ListView.builder(
-            controller: controller,
-            itemCount: int.parse(_response.COUNT!),
-            itemBuilder: (BuildContext context, int index) {
-              return resultPage(index);
-            },
-          ),
+    return TransformableListView.builder(
+      controller: _scrollcontroller,
+      getTransformMatrix: getRotateMatrix,
+      itemBuilder: (context, index) {
+        return buildTripCard(index);
+      },
+      itemCount: int.parse(_response.COUNT),
     );
+    return ListView.builder(
+      controller: _scrollcontroller,
+      itemCount: int.parse(_response.COUNT),
+      itemBuilder: (BuildContext context, int index) {
+        return resultPage(index);
+      },
+    );
+  }
 
+  Matrix4 getRotateMatrix(TransformableListItem item) {
+    /// rotate item to 90 degrees
+    const maxRotationTurnsInRadians = pi / 2.0;
+
+    /// 0 when animation starts and [rotateAngle] == 0 degrees
+    /// 1 when animation completed and [rotateAngle] == 90 degrees
+    final animationProgress = 1 - item.visibleExtent / item.size.height;
+
+    /// result matrix
+    final paintTransform = Matrix4.identity();
+
+    /// animate only if item is on edge
+    if (item.position != TransformableListItemPosition.middle) {
+      /// rotate to the left if even
+      /// rotate to the right if odd
+      final isEven = item.index?.isEven ?? false;
+
+      /// To select corner of the rotation
+      final FractionalOffset fractionalOffset;
+      final int rotateDirection;
+
+      switch (item.position) {
+        case TransformableListItemPosition.topEdge:
+          fractionalOffset = isEven
+              ? FractionalOffset.bottomLeft
+              : FractionalOffset.bottomRight;
+          rotateDirection = isEven ? -1 : 1;
+          break;
+        case TransformableListItemPosition.middle:
+          return paintTransform;
+        case TransformableListItemPosition.bottomEdge:
+          fractionalOffset =
+          isEven ? FractionalOffset.topLeft : FractionalOffset.topRight;
+          rotateDirection = isEven ? 1 : -1;
+          break;
+      }
+
+      final rotateAngle = animationProgress * maxRotationTurnsInRadians;
+      final translation = fractionalOffset.alongSize(item.size);
+
+      paintTransform
+        ..translate(translation.dx, translation.dy)
+        ..rotateZ(rotateDirection * rotateAngle)
+        ..translate(-translation.dx, -translation.dy);
+    }
+
+    return paintTransform;
   }
 
   Widget resultPage(int index){
@@ -329,8 +329,6 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
 
     if(_response.RST == "1"){
       has_result = true;
-    }
-    if(int.parse(_response.COUNT!) > 1){
     }
 
     return Container(
@@ -344,7 +342,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
             ),
           ]
       ),
-      margin: const EdgeInsets.all(10.0),
+      margin: const EdgeInsets.only(left: 10,right: 10),
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () {
@@ -358,11 +356,10 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
           padding: const EdgeInsets.all(10.0),
           child: Column(
             children: [
-              Text(
-                  _response.RST! == "1" ? _response.PRODUCT![index].NOM : "", style: const TextStyle(color: Colors.black,  fontSize: 30), textAlign: TextAlign.center),
+              Text(_response.RST == "1" ? _response.PRODUCT![index].NOM : "", style: const TextStyle(color: Colors.black,  fontSize: 30), textAlign: TextAlign.center),
               Divider(thickness: 1,),
               Text(
-                _response.RST! == "1" ? _response.PRODUCT![index].PRD : tr('no_result_product'),
+                _response.RST == "1" ? _response.PRODUCT![index].PRD : tr('no_result_product'),
                 style: const TextStyle(color: Colors.lightBlueAccent,  fontSize: 27, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
@@ -406,6 +403,91 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     );
   }
 
+
+  Widget buildTripCard(int index) {
+
+    bool has_result = false;
+
+    if(_response.RST == "1"){
+      has_result = true;
+    }
+
+    return new Container(
+      foregroundDecoration: RotatedCornerDecoration.withColor(
+        color: Colors.orangeAccent,
+        badgeSize: Size(90, 90),
+        textSpan: TextSpan(
+          text: 'السعر\nالجيد',
+          style: TextStyle(fontSize: 14),
+        ),
+      ),
+      decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.all(Radius.circular(24.0)),
+          boxShadow: [
+            BoxShadow(
+              blurRadius: 24.0,
+              color: Colors.white,
+            ),
+          ]
+      ),
+      margin: const EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 10),
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Column(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.only(top: 1.0, bottom: 4.0),
+                child: Row(children: <Widget>[
+                  Flexible(
+                    child:  Text(_response.RST == "1" ? _response.PRODUCT![index].NOM : "", style: const TextStyle(color: Colors.black,  fontSize: 25), textAlign: TextAlign.center, overflow: TextOverflow.ellipsis,),
+                  ),
+                  Spacer(),
+                ]),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 4.0, bottom: 80.0),
+                child: Row(children: <Widget>[
+                  Text(_response.PRODUCT![index].REGION, style: const TextStyle(color: Colors.grey, fontSize: 14)),
+                  Spacer(),
+                ]),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 1.0, bottom: 1.0),
+                child: Row(
+                  children: <Widget>[
+                    has_result ?
+                    _response.PRODUCT![index].HAS_PRM == "1" ? Text(_response.PRODUCT![index].PRX + " DA", style: TextStyle(color: Colors.red, fontSize: 25, decoration: TextDecoration.lineThrough)) :
+                    Text(has_result ? _response.PRODUCT![index].PRX + " DA" : "" , style: const TextStyle(color: Colors.green, fontSize: 25,)) :
+                    Visibility(
+                      child: Text(""),
+                      visible: false,
+                    ),
+                    Spacer(),
+                    Icon(Icons.directions_car),
+                  ],
+                ),
+              ),
+              Divider(thickness: 1,),
+              Padding(
+                padding: const EdgeInsets.only(top: 1.0, bottom: 1.0),
+                child: Row(
+                  children: <Widget>[
+                    Text(""),
+                    Spacer(),
+                    Icon(Icons.date_range),
+                    Text(tr('last_update') +  DateFormat("dd-MM-yyyy").format(_response.PRODUCT![index].DATE_MAJ), style: const TextStyle(color: Colors.grey, fontSize: 10)),
+                  ],
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget showInsertCode(){
     return Container(
       decoration: BoxDecoration(
@@ -425,7 +507,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
           children: [
             Image.asset("assets/images/image_codebarre_help1.png"),
             const SizedBox(height: 5,),
-            Text("To get your result manualy without scanning, please insert the code of your product here and tap validate", textAlign: TextAlign.center, style: TextStyle(fontSize: 16, color: Colors.grey),),
+            Text(tr('help_manual_scan'), textAlign: TextAlign.center, style: TextStyle(fontSize: 16, color: Colors.grey),),
             const SizedBox(height: 5,),
 
             Padding(
@@ -475,7 +557,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   }
 
   Widget ScanWidget(){
-    _panelController!.show();
+    //_panelController!.show();
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
@@ -533,7 +615,6 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
       }else{
         showSnackBarWithKey(tr("error_code_market"));
       }
-
 
     } on PlatformException {
       qrCode = 'Failed to get platform version.';

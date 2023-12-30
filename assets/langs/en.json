@@ -24,6 +24,9 @@
   "scanner_qr": "Scan market code",
   "error_code_market": "Doesn't SOUMA's qr code",
   "help_manual_scan": "To get your result manualy without scanning, please insert the code of your product here and tap validate",
+  "by_price": "By price",
+  "by_date": "By date",
+  "by_region": "By region",
 
   "login": "Login",
   "code_client": "Client code",

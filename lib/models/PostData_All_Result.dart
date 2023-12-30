@@ -8,14 +8,14 @@ class PostDataAllResult {
 
 
   String? CB;
-  String? COUNT;
-  String? RST;
+  String COUNT = "1";
+  String RST = "0";
   List<PostData_Product>? PRODUCT;
 
   PostDataAllResult({
       String? CB,
-      String? COUNT,
-      String? RST,
+      String COUNT = "1",
+      String RST = "0",
       List<PostData_Product>? PRODUCT,}){
     CB = CB;
     COUNT = COUNT;

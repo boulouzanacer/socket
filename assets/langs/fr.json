@@ -23,6 +23,9 @@
   "scanner_qr": "Scanner code magazin",
   "error_code_market": "Qr code does not belong to SOUMA application",
   "help_manual_scan": "Pour voir votre résultat manuellement sans scanner, veuillez introduire le code de votre produit ici et clickez valider",
+  "by_price": "Par prix",
+  "by_date": "Par date",
+  "by_region": "Par region",
 
   "current": "Page actuel",
   "logout": "Déconnecté",
