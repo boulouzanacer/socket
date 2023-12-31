@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
-import 'dart:typed_data';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -14,7 +12,7 @@ import 'package:sliding_up_panel2/sliding_up_panel2.dart';
 import 'package:souma/Env.dart';
 import 'package:souma/models/PostData_All_Result.dart';
 import 'package:souma/models/PostData_Market.dart';
-import 'package:transformable_list_view/transformable_list_view.dart';
+import 'package:souma/utils/IntentUtils.dart';
 import 'package:turn_page_transition/turn_page_transition.dart';
 import 'listmarket.dart';
 
@@ -98,19 +96,19 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   }
 
   void _onScrollEvent() {
-    final extentAfter = _scrollcontroller.position.extentAfter;
-    if(extentAfter < 80){
-      _panelController!.hide();
 
-      setState(() {
-        _isfloatingVisible = true;
-      });
+    if (_scrollcontroller.offset >= _scrollcontroller.position.maxScrollExtent && !_scrollcontroller.position.outOfRange) {
+      _panelController!.hide();
+       /* setState(() {
+          _isfloatingVisible = true;
+        });*/
     }else{
       _panelController!.show();
-      setState(() {
+      /*setState(() {
         _isfloatingVisible = false;
-      });
+      });*/
     }
+
     t.cancel();
     t = Timer(Duration(seconds: 15), () {
       setState(() {
@@ -257,70 +255,13 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   }
 
   Widget showResult(){
-    return TransformableListView.builder(
-      controller: _scrollcontroller,
-      getTransformMatrix: getRotateMatrix,
-      itemBuilder: (context, index) {
-        return buildTripCard(index);
-      },
-      itemCount: int.parse(_response.COUNT),
-    );
     return ListView.builder(
       controller: _scrollcontroller,
       itemCount: int.parse(_response.COUNT),
       itemBuilder: (BuildContext context, int index) {
-        return resultPage(index);
+        return buildTripCard(index);
       },
     );
-  }
-
-  Matrix4 getRotateMatrix(TransformableListItem item) {
-    /// rotate item to 90 degrees
-    const maxRotationTurnsInRadians = pi / 2.0;
-
-    /// 0 when animation starts and [rotateAngle] == 0 degrees
-    /// 1 when animation completed and [rotateAngle] == 90 degrees
-    final animationProgress = 1 - item.visibleExtent / item.size.height;
-
-    /// result matrix
-    final paintTransform = Matrix4.identity();
-
-    /// animate only if item is on edge
-    if (item.position != TransformableListItemPosition.middle) {
-      /// rotate to the left if even
-      /// rotate to the right if odd
-      final isEven = item.index?.isEven ?? false;
-
-      /// To select corner of the rotation
-      final FractionalOffset fractionalOffset;
-      final int rotateDirection;
-
-      switch (item.position) {
-        case TransformableListItemPosition.topEdge:
-          fractionalOffset = isEven
-              ? FractionalOffset.bottomLeft
-              : FractionalOffset.bottomRight;
-          rotateDirection = isEven ? -1 : 1;
-          break;
-        case TransformableListItemPosition.middle:
-          return paintTransform;
-        case TransformableListItemPosition.bottomEdge:
-          fractionalOffset =
-          isEven ? FractionalOffset.topLeft : FractionalOffset.topRight;
-          rotateDirection = isEven ? 1 : -1;
-          break;
-      }
-
-      final rotateAngle = animationProgress * maxRotationTurnsInRadians;
-      final translation = fractionalOffset.alongSize(item.size);
-
-      paintTransform
-        ..translate(translation.dx, translation.dy)
-        ..rotateZ(rotateDirection * rotateAngle)
-        ..translate(-translation.dx, -translation.dy);
-    }
-
-    return paintTransform;
   }
 
   Widget resultPage(int index){
@@ -410,83 +351,124 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     if(_response.RST == "1"){
       has_result = true;
     }
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        setState(() {
+          isshowResult = false;
+          t.cancel();
+          _response = new PostDataAllResult();
+        });
+      },
+      child: Container(
 
-    return new Container(
-      foregroundDecoration: RotatedCornerDecoration.withColor(
-        color: Colors.green,
-        badgeSize: Size(90, 90),
-        textSpan: TextSpan(
-          text: tr('best_price'),
-          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+        decoration: BoxDecoration(
+            //color: Colors.white,
+            borderRadius: BorderRadius.all(Radius.circular(24.0)),
+            boxShadow: [
+              BoxShadow(
+                blurRadius: 24.0,
+                color: Colors.white,
+              ),
+            ]
         ),
-      ),
-      decoration: BoxDecoration(
+
+        margin: const EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 10),
+
+        foregroundDecoration: _response.PRODUCT![index].IS_THE_BEST ?
+        RotatedCornerDecoration.withColor(
+          color: Colors.redAccent,
+          badgeSize: Size(90, 90),
+          textSpan: TextSpan(
+            text: tr('best_price'),
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+          ),
+        ) : null,
+
+        child: Card(
+          shadowColor: Colors.green,
           color: Colors.white,
-          borderRadius: BorderRadius.all(Radius.circular(24.0)),
-          boxShadow: [
-            BoxShadow(
-              blurRadius: 24.0,
-              color: Colors.white,
-            ),
-          ]
-      ),
-      margin: const EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 10),
-      child: Card(
-        color: Colors.white,
-        child: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Column(
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.only(top: 1.0, bottom: 4.0),
-                child: Row(children: <Widget>[
-                  Flexible(
-                    child:  Text(_response.RST == "1" ? _response.PRODUCT![index].NOM  : "", style: const TextStyle(color: Colors.black,  fontSize: 22), textAlign: TextAlign.start, overflow: TextOverflow.visible,),
-                  ),
-                ]),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 4.0, bottom: 80.0),
-                child: Row(children: <Widget>[
-                  Text(_response.PRODUCT![index].REGION, style: const TextStyle(color: Colors.grey, fontSize: 14)),
-                  Spacer(),
-                ]),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 1.0, bottom: 1.0),
-                child: Row(
-                  children: <Widget>[
-                    Icon(Icons.money , color: Colors.blue,),
-                    SizedBox(width: 5,),
-                    has_result ?
-                    _response.PRODUCT![index].HAS_PRM == "1" ? Text(_response.PRODUCT![index].PRX + " DA", style: TextStyle(color: Colors.red, fontSize: 25, decoration: TextDecoration.lineThrough)) :
-                    Text(has_result ? _response.PRODUCT![index].PRX + " DA" : "" , style: const TextStyle(color: Colors.green, fontSize: 25,)) :
-                    Visibility(
-                      child: Text(""),
-                      visible: false,
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Column(
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(top: 1.0, bottom: 4.0),
+                  child: Row(children: <Widget>[
+                    Flexible(
+                      child:  Text(_response.RST == "1" ? _response.PRODUCT![index].NOM  : "", style: const TextStyle(color: Colors.black,  fontSize: 22), textAlign: TextAlign.start, overflow: TextOverflow.visible,),
                     ),
-                    Spacer(),
-                    //Icon(Icons.location_on, color: Colors.green,),
-                    ElevatedButton.icon(
-                        onPressed: ()=> {},
-                        icon: Icon(Icons.golf_course),
-                        label: Text("GO", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.blue),)),
-                  ],
+                  ]),
                 ),
-              ),
-              Divider(thickness: 1,),
-              Padding(
-                padding: const EdgeInsets.only(top: 1.0, bottom: 1.0),
-                child: Row(
-                  children: <Widget>[
-                    Text(""),
+                Padding(
+                  padding: const EdgeInsets.only(top: 4.0, bottom: 40.0),
+                  child: Row(children: <Widget>[
+                    Icon(Icons.location_pin, color: Colors.orange,),
+                    SizedBox(width: 5,),
+                    Text(_response.PRODUCT![index].REGION, style: const TextStyle(color: Colors.grey, fontSize: 14)),
                     Spacer(),
-                    Icon(Icons.date_range),
-                    Text(tr('last_update') +  DateFormat("dd-MM-yyyy").format(_response.PRODUCT![index].DATE_MAJ), style: const TextStyle(color: Colors.grey, fontSize: 10)),
-                  ],
+                  ]),
                 ),
-              )
-            ],
+                Padding(
+                  padding: const EdgeInsets.only(top: 1.0, bottom: 1.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      _response.PRODUCT![index].HAS_PRM == "1" ?
+                      Row(
+                        children: [
+                          Icon(Icons.price_change , color: Colors.blue,),
+                          SizedBox(width: 5,),
+                          Text(_response.PRODUCT![index].PRM + " DA", style: TextStyle(color: Colors.green, fontSize: 25))
+                        ],
+                      )
+                      :
+                      Visibility(
+                        child: Text(""),
+                        visible: false,
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 1.0, bottom: 1.0),
+                  child: Row(
+                    children: <Widget>[
+                      Icon(Icons.price_change , color: Colors.blue,),
+                      SizedBox(width: 5,),
+                      has_result ?
+                      _response.PRODUCT![index].HAS_PRM == "1" ? Text(_response.PRODUCT![index].PRX + " DA", style: TextStyle(color: Colors.red, fontSize: 25, decoration: TextDecoration.lineThrough)) :
+                      Text(has_result ? _response.PRODUCT![index].PRX + " DA" : "" , style: const TextStyle(color: Colors.green, fontSize: 25,)) :
+                      Visibility(
+                        child: Text(""),
+                        visible: false,
+                      ),
+                      Spacer(),
+                      //Icon(Icons.location_on, color: Colors.green,),
+                      ElevatedButton.icon(
+                          onPressed: () async => {
+                            await IntentUtils.launchGoogleMaps()
+                          },
+                          icon: Icon(Icons.golf_course),
+                          label: Text("GO", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.blue),)),
+                    ],
+                  ),
+                ),
+                Divider(thickness: 1,),
+                Padding(
+                  padding: const EdgeInsets.only(top: 1.0, bottom: 1.0),
+                  child: Row(
+                    children: <Widget>[
+                      Text(""),
+                      Spacer(),
+                      Icon(Icons.date_range),
+                      Text(tr('last_update') +  DateFormat("dd-MM-yyyy").format(_response.PRODUCT![index].DATE_MAJ), style: const TextStyle(color: Colors.grey, fontSize: 10)),
+                    ],
+                  ),
+                )
+              ],
+            ),
           ),
         ),
       ),
@@ -720,6 +702,9 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
           setState(() {
               isshowResult = true;
               _response = jsonData;
+              if(int.parse(_response.COUNT) > 0 && _response.RST == "1"){
+                _response.PRODUCT![0].IS_THE_BEST = true;
+              }
               // Anything else you want
           });
 

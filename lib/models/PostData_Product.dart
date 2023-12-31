@@ -16,6 +16,7 @@ class PostData_Product {
   String PRM;
   DateTime DATE_MAJ;
   String REGION;
+  bool IS_THE_BEST = false;
 
   PostData_Product({
     required this.NOM,
@@ -24,7 +25,8 @@ class PostData_Product {
     required this.HAS_PRM,
     required this.PRM,
     required this.DATE_MAJ,
-    required this.REGION});
+    required this.REGION,
+    required this.IS_THE_BEST});
 
   factory PostData_Product.fromJson(Map<String, dynamic> json) {
     DateFormat format = DateFormat("dd/MM/yyyy");
@@ -37,6 +39,7 @@ class PostData_Product {
       PRM: json['PRM'],
       DATE_MAJ: format.parse(json['DATE_MAJ']),
       REGION: json['REGION'],
+      IS_THE_BEST: false,
     );
   }
 

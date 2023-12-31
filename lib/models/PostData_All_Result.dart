@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'PostData_Product.dart';
 /// CB : "75475756347675"
 /// COUNT : "3"
@@ -39,6 +41,7 @@ class PostDataAllResult {
     data['CB'] = CB;
     data['COUNT'] = COUNT;
     data['RST'] = RST;
+    //data['IS_THE_BEST'] = false;
     if (PRODUCT != null) {
       data['PRODUCT'] = PRODUCT?.map((v) => v.toJson()).toList();
     }
