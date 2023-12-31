@@ -407,18 +407,17 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   Widget buildTripCard(int index) {
 
     bool has_result = false;
-
     if(_response.RST == "1"){
       has_result = true;
     }
 
     return new Container(
       foregroundDecoration: RotatedCornerDecoration.withColor(
-        color: Colors.orangeAccent,
+        color: Colors.green,
         badgeSize: Size(90, 90),
         textSpan: TextSpan(
-          text: 'السعر\nالجيد',
-          style: TextStyle(fontSize: 14),
+          text: tr('best_price'),
+          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
         ),
       ),
       decoration: BoxDecoration(
@@ -433,6 +432,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
       ),
       margin: const EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 10),
       child: Card(
+        color: Colors.white,
         child: Padding(
           padding: const EdgeInsets.all(10.0),
           child: Column(
@@ -441,9 +441,8 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                 padding: const EdgeInsets.only(top: 1.0, bottom: 4.0),
                 child: Row(children: <Widget>[
                   Flexible(
-                    child:  Text(_response.RST == "1" ? _response.PRODUCT![index].NOM : "", style: const TextStyle(color: Colors.black,  fontSize: 25), textAlign: TextAlign.center, overflow: TextOverflow.ellipsis,),
+                    child:  Text(_response.RST == "1" ? _response.PRODUCT![index].NOM  : "", style: const TextStyle(color: Colors.black,  fontSize: 22), textAlign: TextAlign.start, overflow: TextOverflow.visible,),
                   ),
-                  Spacer(),
                 ]),
               ),
               Padding(
@@ -457,6 +456,8 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                 padding: const EdgeInsets.only(top: 1.0, bottom: 1.0),
                 child: Row(
                   children: <Widget>[
+                    Icon(Icons.money , color: Colors.blue,),
+                    SizedBox(width: 5,),
                     has_result ?
                     _response.PRODUCT![index].HAS_PRM == "1" ? Text(_response.PRODUCT![index].PRX + " DA", style: TextStyle(color: Colors.red, fontSize: 25, decoration: TextDecoration.lineThrough)) :
                     Text(has_result ? _response.PRODUCT![index].PRX + " DA" : "" , style: const TextStyle(color: Colors.green, fontSize: 25,)) :
@@ -465,7 +466,11 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                       visible: false,
                     ),
                     Spacer(),
-                    Icon(Icons.directions_car),
+                    //Icon(Icons.location_on, color: Colors.green,),
+                    ElevatedButton.icon(
+                        onPressed: ()=> {},
+                        icon: Icon(Icons.golf_course),
+                        label: Text("GO", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.blue),)),
                   ],
                 ),
               ),

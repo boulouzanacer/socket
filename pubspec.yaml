@@ -2,7 +2,7 @@ name: souma
 description: "A new Flutter project."
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 23.8.0
+version: 23.9.0
 
 environment:
   sdk: '>=3.1.0-315.0.dev <4.0.0'
@@ -26,6 +26,7 @@ dependencies:
   sliding_up_panel2: ^3.3.0+1
   transformable_list_view: ^0.4.0
   rotated_corner_decoration: ^2.1.0+1
+  floating_text: ^0.2.0
 
 dev_dependencies:
   flutter_test:
