@@ -401,6 +401,14 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                   ]),
                 ),
                 Padding(
+                  padding: const EdgeInsets.only(top: 1.0, bottom: 4.0),
+                  child: Row(children: <Widget>[
+                    Flexible(
+                      child:  Text(_response.RST == "1" ? _response.PRODUCT![index].PRD  : "", style: const TextStyle(color: Colors.blue,  fontSize: 18), textAlign: TextAlign.start, overflow: TextOverflow.visible,),
+                    ),
+                  ]),
+                ),
+                Padding(
                   padding: const EdgeInsets.only(top: 4.0, bottom: 40.0),
                   child: Row(children: <Widget>[
                     Icon(Icons.location_pin, color: Colors.orange,),
