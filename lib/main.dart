@@ -456,7 +456,8 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                       //Icon(Icons.location_on, color: Colors.green,),
                       ElevatedButton.icon(
                           onPressed: () async => {
-                            await IntentUtils.launchGoogleMaps()
+                            await IntentUtils.launchGoogleMaps(),
+                            print('')
                           },
                           icon: Icon(Icons.golf_course),
                           label: Text("GO", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.blue),)),
