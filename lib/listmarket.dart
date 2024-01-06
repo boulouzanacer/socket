@@ -230,7 +230,7 @@ class _ListMarketState extends State<ListMarket> {
 
       sendMessage();
 
-      String data = "";
+      String jsonData1 = "";
       Future.delayed(const Duration(seconds: 1)).then((_) {
         setState(() {
           isLoading = false;
@@ -238,14 +238,11 @@ class _ListMarketState extends State<ListMarket> {
         });
       });
       var subscription = socket.listen((Uint8List buffer) async {
-        String _buffer = String.fromCharCodes(buffer);
-        data += _buffer;
+        //String _buffer = String.fromCharCodes(buffer);
+        //data += _buffer;
 
-        List<int> list = utf8.encode(data);
-        Uint8List bytes = Uint8List.fromList(list);
-        String jsonData1 = await CharsetConverter.decode("windows-1256", bytes);
+        String jsonData1 = await CharsetConverter.decode("windows-1256", buffer);
         List<dynamic> jsonData = json.decode(jsonData1) as List<dynamic>;
-
 
         markets.clear();
 
@@ -260,7 +257,7 @@ class _ListMarketState extends State<ListMarket> {
           _refreshController.refreshCompleted();
         });
 
-        data = "";
+        jsonData1 = "";
         disconnectFromServer();
       },
         onDone: onDone,

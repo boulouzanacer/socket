@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:charset_converter/charset_converter.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -489,8 +490,8 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                         //Icon(Icons.location_on, color: Colors.green,),
                         ElevatedButton.icon(
                             onPressed: () async => {
-                              await IntentUtils.launchGoogleMaps(),
-                              print('')
+                              //await IntentUtils.launchGoogleMaps(),
+                              IntentUtils.openMapsSheet(context),
                             },
                             icon: Icon(Icons.golf_course),
                             label: Text("GO", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.blue),)),
@@ -735,15 +736,13 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
 
       sendMessage(code_market, code_product);
 
-      String data = "";
+      String jsonData1 = "";
       var subscription = socket.listen((Uint8List buffer) async {
-          String _buffer = String.fromCharCodes(buffer);
-          data += _buffer;
+         // String _buffer = String.fromCharCodes(buffer);
+          //data += _buffer;
 
-        //  List<int> list = utf8.encode(data);
-        //  Uint8List bytes = Uint8List.fromList(list);
-        //  String jsonData1 = await CharsetConverter.decode("windows-1256", bytes);
-          PostDataAllResult jsonData = PostDataAllResult.fromJson(jsonDecode(data));
+          jsonData1 = await CharsetConverter.decode("windows-1256", buffer);
+          PostDataAllResult jsonData = PostDataAllResult.fromJson(jsonDecode(jsonData1));
 
           setState(() {
               isshowResult = true;
@@ -764,9 +763,9 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
           });
 
           if(_response.RST == "1" && int.parse(_response.COUNT) > 1){
-            AudioService().playSound(AssetSource('audio/success_sound.mp3'));
+           // AudioService().playSound(AssetSource('audio/success_sound.mp3'));
           }
-          data = "";
+          jsonData1 = "";
           disconnectFromServer();
         },
         onDone: onDone,
