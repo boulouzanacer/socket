@@ -80,7 +80,6 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   TextEditingController codebarreController = TextEditingController();
   PanelController? _panelController = PanelController();
   ScrollController _scrollcontroller = ScrollController();
-  int currentIndex = 0;
   DateFormat format = DateFormat("dd/MM/yyyy");
   bool _isfloatingVisible = false;
 
@@ -179,10 +178,10 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                 reOrderByPrice();
               }
               if(value == "2"){
-                reOrderByRegion();
+                reOrderByDate();
               }
               if(value == "3"){
-                reOrderByDate();
+                reOrderByRegion();
               }
             },
             itemBuilder: (BuildContext context) => [
@@ -249,7 +248,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
               visible: false,
             )
             :
-            Text("Result : " + _response.COUNT, textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white),),
+            Text("Result : " + _response.PRODUCT!.length.toString(), textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white),),
           ],
         )
       ),
@@ -259,7 +258,8 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   Widget showResult(){
     return ListView.builder(
       controller: _scrollcontroller,
-      itemCount: int.parse(_response.COUNT),
+      //itemCount: int.parse(_response.COUNT),
+      itemCount: _response.PRODUCT!.length,
       itemBuilder: (BuildContext context, int index) {
         return buildTripCard(index);
       },
@@ -720,7 +720,6 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
 
     // reset index result indicator
     setState(() {
-      currentIndex = 0;
       isshowResult = false;
       _response = new PostDataAllResult();
     });
@@ -737,12 +736,14 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
       sendMessage(code_market, code_product);
 
       String jsonData1 = "";
+      var _buffer = BytesBuilder();
       var subscription = socket.listen((Uint8List buffer) async {
-         // String _buffer = String.fromCharCodes(buffer);
+          //String _buffer = String.fromCharCodes(buffer);
           //data += _buffer;
-
-          jsonData1 = await CharsetConverter.decode("windows-1256", buffer);
-          PostDataAllResult jsonData = PostDataAllResult.fromJson(jsonDecode(jsonData1));
+        _buffer.add(buffer);
+        var unit8 = _buffer.toBytes();
+        jsonData1 = await CharsetConverter.decode("windows-1256", unit8);
+        PostDataAllResult jsonData = PostDataAllResult.fromJson(jsonDecode(jsonData1));
 
           setState(() {
               isshowResult = true;
@@ -766,7 +767,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
            // AudioService().playSound(AssetSource('audio/success_sound.mp3'));
           }
           jsonData1 = "";
-          disconnectFromServer();
+          //disconnectFromServer();
         },
         onDone: onDone,
         onError: onError,

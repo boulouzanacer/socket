@@ -231,6 +231,7 @@ class _ListMarketState extends State<ListMarket> {
       sendMessage();
 
       String jsonData1 = "";
+      var _buffer = BytesBuilder();
       Future.delayed(const Duration(seconds: 1)).then((_) {
         setState(() {
           isLoading = false;
@@ -241,7 +242,9 @@ class _ListMarketState extends State<ListMarket> {
         //String _buffer = String.fromCharCodes(buffer);
         //data += _buffer;
 
-        String jsonData1 = await CharsetConverter.decode("windows-1256", buffer);
+        _buffer.add(buffer);
+        var unit8 = _buffer.toBytes();
+        String jsonData1 = await CharsetConverter.decode("windows-1256", unit8);
         List<dynamic> jsonData = json.decode(jsonData1) as List<dynamic>;
 
         markets.clear();
