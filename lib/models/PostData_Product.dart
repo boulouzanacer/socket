@@ -11,11 +11,13 @@ class PostData_Product {
 
   String NOM;
   String PRD;
-  String PRX;
+  double PRX;
   String HAS_PRM;
-  String PRM;
+  double PRM;
   DateTime DATE_MAJ;
   String REGION;
+  double LA;
+  double LO;
   bool IS_THE_BEST = false;
 
   PostData_Product({
@@ -26,6 +28,8 @@ class PostData_Product {
     required this.PRM,
     required this.DATE_MAJ,
     required this.REGION,
+    required this.LA,
+    required this.LO,
     required this.IS_THE_BEST});
 
   factory PostData_Product.fromJson(Map<String, dynamic> json) {
@@ -34,11 +38,13 @@ class PostData_Product {
     return PostData_Product(
       NOM: json['NOM'],
       PRD: json['PRD'],
-      PRX: json['PRX'],
+      PRX: double.parse(json['PRX']),
       HAS_PRM: json['HAS_PRM'],
-      PRM: json['PRM'],
+      PRM: double.parse(json['PRM']),
       DATE_MAJ: format.parse(json['DATE_MAJ']),
       REGION: json['REGION'],
+      LA: double.parse(json['LA']),
+      LO: double.parse(json['LO']),
       IS_THE_BEST: false,
     );
   }

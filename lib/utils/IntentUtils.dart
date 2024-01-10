@@ -7,31 +7,16 @@ import 'package:url_launcher/url_launcher.dart';
 class IntentUtils {
   IntentUtils._();
 
-  static Future<void> launchGoogleMaps() async {
-    const double destinationLatitude= 36.735900;
-    const double destinationLongitude = 3.174950;
-    final uri = Uri(
-        scheme: "google.navigation",
-        // host: '"0,0"',  {here we can put host}
-        queryParameters: {
-          'q': '$destinationLatitude, $destinationLongitude'
-        });
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
-      debugPrint('An error occurred');
-    }
-  }
+  static Future<void> openMapsSheet(context, double lat, double log) async {
 
-  static Future<void> openMapsSheet(context) async {
-
-    const double destinationLatitude= 36.735900;
-    const double destinationLongitude = 3.174950;
+    final double destinationLatitude= lat;
+    final double destinationLongitude = log;
 
     try {
       final availableMaps = await MapLauncher.installedMaps;
       showModalBottomSheet(
         context: context,
+        isDismissible: true,
         builder: (BuildContext context) {
           return SafeArea(
             child: SingleChildScrollView(
@@ -40,9 +25,10 @@ class IntentUtils {
                   children: <Widget>[
                     for (var map in availableMaps)
                       ListTile(
-                        onTap: () => map.showDirections(
-                          destination :  Coords(destinationLatitude, destinationLongitude),
-                        ),
+                        onTap:  (){
+                          map.showDirections(destination :  Coords(destinationLatitude, destinationLongitude));
+                          Navigator.of(context).pop(true);
+                        },
                         title: Text(map.mapName),
                         leading: SvgPicture.asset(
                           map.icon,

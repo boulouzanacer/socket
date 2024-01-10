@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:animation_search_bar/animation_search_bar.dart';
 import 'package:charset_converter/charset_converter.dart';
 import 'package:custom_clippers/custom_clippers.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -23,7 +24,9 @@ class _ListMarketState extends State<ListMarket> {
   List<PostData_Market> markets = [];
   List<PostData_Market> _filteredData = [];
   final TextEditingController _searchController = TextEditingController();
+  late TextEditingController controller;
   late Socket? clientSocket;
+  int market_count = 0;
 
   @override
   void initState() {
@@ -31,38 +34,50 @@ class _ListMarketState extends State<ListMarket> {
     // call server to get all market
     WidgetsBinding.instance.addPostFrameCallback((_) => getAllMArketFromServer());
     _filteredData = markets;
-    _searchController.addListener(_performSearch);
+   // _searchController.addListener(_performSearch);
+    controller = TextEditingController();
   }
 
 
   void dispose() {
-    _searchController.dispose();
+    //_searchController.dispose();
     super.dispose();
-  }
-
-  Future<void> _performSearch() async {
-    setState(() {
-      isLoading = true;
-    });
-
-    //Simulates waiting for an API call
-    await Future.delayed(const Duration(milliseconds: 500));
-
-    setState(() {
-      _filteredData = markets
-          .where((element) => element.NOM.toString()
-          .toLowerCase()
-          .contains(_searchController.text.toLowerCase()))
-          .toList();
-      isLoading = false;
-    });
   }
 
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: PreferredSize(
+          preferredSize: const Size(double.infinity, 65),
+          child: SafeArea(
+              child: Container(
+                decoration: const BoxDecoration(color: Colors.blue, boxShadow: [
+                  BoxShadow(
+                      color: Colors.white,
+                      blurRadius: 5,
+                      spreadRadius: 0,
+                      offset: Offset(0, 5))
+                ]),
+                alignment: Alignment.center,
+                child: AnimationSearchBar(
+                    backIconColor: Colors.white,
+                    closeIconColor: Colors.white,
+                    centerTitle: tr('market_list') + (_filteredData.length != 0 ? "\n" + _filteredData.length.toString() : ""),
+                    hintText: tr('search'),
+                    centerTitleStyle: const TextStyle(fontWeight: FontWeight.w500,color: Colors.white, fontSize: 20),
+                    textStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.w300),
+                    cursorColor: Colors.white,
+                    duration: const Duration(milliseconds: 500),
+                    searchIconColor: Colors.white.withOpacity(.7),
+                    onChanged: (text) {
+                      setState(() {
+                        _filteredData = markets.where((e) => e.NOM.toLowerCase().contains(text.toLowerCase())).toList();
+                      });
+                    },
+                    searchTextEditingController: controller),
+              ))),
+     /* appBar: AppBar(
           title: TextField(
             controller: _searchController,
             style: const TextStyle(color: Colors.white),
@@ -77,7 +92,7 @@ class _ListMarketState extends State<ListMarket> {
             },
           ),
         backgroundColor: Colors.blue,
-      ),
+      ),*/
       body: isLoading ? Loading() : ListMarket(),
     );
   }
@@ -149,9 +164,9 @@ class _ListMarketState extends State<ListMarket> {
             children: [
               const Icon(Icons.home_outlined, color: Colors.blue,),
               const SizedBox(width: 5,),
-              Text(market.NOM,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
+              Flexible(
+                child:  Text(market.NOM, style: const TextStyle(color: Colors.black,  fontSize: 18, fontWeight: FontWeight.bold), textAlign: TextAlign.start, overflow: TextOverflow.visible,),
+              ),
             ],
           ),
           const SizedBox(height: 5,),

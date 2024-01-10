@@ -17,11 +17,13 @@ import 'package:souma/models/PostData_Market.dart';
 import 'package:souma/utils/AudioService.dart';
 import 'package:souma/utils/IntentUtils.dart';
 import 'package:turn_page_transition/turn_page_transition.dart';
+import 'package:upgrader/upgrader.dart';
 import 'listmarket.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
+  //await Upgrader.clearSavedSettings();
 
   runApp(
     EasyLocalization(
@@ -52,7 +54,9 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(),
+      home:  UpgradeAlert(
+          child:const MyHomePage(),
+      ),
     );
   }
 }
@@ -256,107 +260,9 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   }
 
   Widget showResult(){
-    return ListView.builder(
-      controller: _scrollcontroller,
-      //itemCount: int.parse(_response.COUNT),
-      itemCount: _response.PRODUCT!.length,
-      itemBuilder: (BuildContext context, int index) {
-        return buildTripCard(index);
-      },
-    );
-  }
 
-  Widget resultPage(int index){
-
-    bool has_result = false;
-
-    if(_response.RST == "1"){
-      has_result = true;
-    }
-
-    return Container(
-      decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.all(Radius.circular(24.0)),
-          boxShadow: [
-            BoxShadow(
-              blurRadius: 20.0,
-              color: Colors.grey,
-            ),
-          ]
-      ),
-      margin: const EdgeInsets.only(left: 10,right: 10),
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () {
-          setState(() {
-            isshowResult = false;
-            t.cancel();
-            _response = new PostDataAllResult();
-          });
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Column(
-            children: [
-              Text(_response.RST == "1" ? _response.PRODUCT![index].NOM : "", style: const TextStyle(color: Colors.black,  fontSize: 30), textAlign: TextAlign.center),
-              Divider(thickness: 1,),
-              Text(
-                _response.RST == "1" ? _response.PRODUCT![index].PRD : tr('no_result_product'),
-                style: const TextStyle(color: Colors.lightBlueAccent,  fontSize: 27, fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 10,),
-              has_result ?
-              _response.PRODUCT![index].HAS_PRM == "1" ? Text(_response.PRODUCT![index].PRX + " DA", style: TextStyle(color: Colors.red, fontSize: 30, decoration: TextDecoration.lineThrough)) :
-              Text(has_result ? _response.PRODUCT![index].PRX + " DA" : "" , style: const TextStyle(color: Colors.green, fontSize: 30,)) :
-              Visibility(
-                child: Text(""),
-                visible: false,
-              ),
-              SizedBox(height: 10,),
-              has_result ?
-              _response.PRODUCT![index].HAS_PRM == "1" ? Text(_response.PRODUCT![index].PRM + " DA", style: const TextStyle(color: Colors.green, fontSize: 30,)) :
-              Visibility(
-                child: Text(""),
-                visible: false,
-              ):
-              Visibility(
-                child: Text(""),
-                visible: false,
-              ),
-              SizedBox(height: 10,),
-              has_result ?
-              Text(tr('last_update') +  DateFormat("dd-MM-yyyy").format(_response.PRODUCT![index].DATE_MAJ), style: const TextStyle(color: Colors.grey, fontSize: 10)) :
-              Visibility(
-                child: Text(""),
-                visible: false,
-              ),
-              SizedBox(height: 10,),
-              has_result ?
-              Text(_response.PRODUCT![index].REGION, style: const TextStyle(color: Colors.grey, fontSize: 14)) :
-              Visibility(
-                child: Text(""),
-                visible: false,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-
-  Widget buildTripCard(int index) {
-
-    bool has_result = false;
-    if(_response.RST == "1"){
-      has_result = true;
-    }
-    Widget return_widget = Text('');
-
-    if(!has_result){
-      return_widget =   GestureDetector(
+    if(_response.RST == "0"){
+      return  GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () {
           setState(() {
@@ -367,158 +273,179 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
         },
         child: Container(
           //alignment: Alignment.center,
-          height: MediaQuery.of(context).size.height,
-          width: MediaQuery.of(context).size.width,
-          padding: EdgeInsets.all(10),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            //crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(tr('no_result_product'), style: const TextStyle(color: Colors.blue,  fontSize: 25), textAlign: TextAlign.center, overflow: TextOverflow.visible,),
-              Image (
-                fit: BoxFit.fitHeight,
-                image: AssetImage('assets/images/dizzy.png'),
-              ),
-            ],
-          )
+            height: MediaQuery.of(context).size.height,
+            width: MediaQuery.of(context).size.width,
+            padding: EdgeInsets.all(10),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              //crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(tr('no_result_product'), style: const TextStyle(color: Colors.blue,  fontSize: 25), textAlign: TextAlign.center, overflow: TextOverflow.visible,),
+                Image (
+                  fit: BoxFit.fitHeight,
+                  image: AssetImage('assets/images/dizzy.png'),
+                ),
+              ],
+            )
         ),
       );
     }else{
-
-      return_widget =  GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () {
-          setState(() {
-            isshowResult = false;
-            t.cancel();
-            _response = new PostDataAllResult();
-          });
+      return ListView.builder(
+        controller: _scrollcontroller,
+        itemCount: _response.PRODUCT!.length,
+        itemBuilder: (BuildContext context, int index) {
+          return buildTripCard(index);
         },
-        child: Container(
-
-          decoration: BoxDecoration(
-            //color: Colors.white,
-              borderRadius: BorderRadius.all(Radius.circular(24.0)),
-              boxShadow: [
-                BoxShadow(
-                  blurRadius: 24.0,
-                  color: Colors.white,
-                ),
-              ]
-          ),
-
-          margin: const EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 10),
-
-          foregroundDecoration: _response.PRODUCT![index].IS_THE_BEST ?
-          RotatedCornerDecoration.withColor(
-            color: Colors.redAccent,
-            badgeSize: Size(90, 90),
-            textSpan: TextSpan(
-              text: tr('best_price'),
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-            ),
-          ) : null,
-
-          child: Card(
-            shadowColor: Colors.green,
-            color: Colors.white,
-            child: Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Column(
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.only(top: 1.0, bottom: 4.0),
-                    child: Row(children: <Widget>[
-                      Flexible(
-                        child:  Text(_response.RST == "1" ? _response.PRODUCT![index].NOM  : "", style: const TextStyle(color: Colors.black,  fontSize: 22), textAlign: TextAlign.start, overflow: TextOverflow.visible,),
-                      ),
-                    ]),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 1.0, bottom: 4.0),
-                    child: Row(children: <Widget>[
-                      Flexible(
-                        child:  Text(_response.RST == "1" ? _response.PRODUCT![index].PRD  : "", style: const TextStyle(color: Colors.blue,  fontSize: 18), textAlign: TextAlign.start, overflow: TextOverflow.visible,),
-                      ),
-                    ]),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4.0, bottom: 40.0),
-                    child: Row(children: <Widget>[
-                      Icon(Icons.location_pin, color: Colors.orange,),
-                      SizedBox(width: 5,),
-                      Text(_response.PRODUCT![index].REGION, style: const TextStyle(color: Colors.grey, fontSize: 14)),
-                      Spacer(),
-                    ]),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 1.0, bottom: 1.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: <Widget>[
-                        _response.PRODUCT![index].HAS_PRM == "1" ?
-                        Row(
-                          children: [
-                            Icon(Icons.price_change , color: Colors.blue,),
-                            SizedBox(width: 5,),
-                            Text(_response.PRODUCT![index].PRM + " DA", style: TextStyle(color: Colors.green, fontSize: 25))
-                          ],
-                        )
-                            :
-                        Visibility(
-                          child: Text(""),
-                          visible: false,
-                        ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 1.0, bottom: 1.0),
-                    child: Row(
-                      children: <Widget>[
-                        Icon(Icons.price_change , color: Colors.blue,),
-                        SizedBox(width: 5,),
-                        has_result ?
-                        _response.PRODUCT![index].HAS_PRM == "1" ? Text(_response.PRODUCT![index].PRX + " DA", style: TextStyle(color: Colors.red, fontSize: 25, decoration: TextDecoration.lineThrough)) :
-                        Text(has_result ? _response.PRODUCT![index].PRX + " DA" : "" , style: const TextStyle(color: Colors.green, fontSize: 25,)) :
-                        Visibility(
-                          child: Text(""),
-                          visible: false,
-                        ),
-                        Spacer(),
-                        //Icon(Icons.location_on, color: Colors.green,),
-                        ElevatedButton.icon(
-                            onPressed: () async => {
-                              //await IntentUtils.launchGoogleMaps(),
-                              IntentUtils.openMapsSheet(context),
-                            },
-                            icon: Icon(Icons.golf_course),
-                            label: Text("GO", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.blue),)),
-                      ],
-                    ),
-                  ),
-                  Divider(thickness: 1,),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 1.0, bottom: 1.0),
-                    child: Row(
-                      children: <Widget>[
-                        Text(""),
-                        Spacer(),
-                        Icon(Icons.date_range),
-                        Text(tr('last_update') +  DateFormat("dd-MM-yyyy").format(_response.PRODUCT![index].DATE_MAJ), style: const TextStyle(color: Colors.grey, fontSize: 10)),
-                      ],
-                    ),
-                  )
-                ],
-              ),
-            ),
-          ),
-        ),
       );
     }
 
-    return return_widget;
+  }
+
+
+  Widget buildTripCard(int index) {
+
+    bool has_result = false;
+    if(_response.RST == "1"){
+      has_result = true;
+    }
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        setState(() {
+          isshowResult = false;
+          t.cancel();
+          _response = new PostDataAllResult();
+        });
+      },
+      child: Container(
+
+        decoration: BoxDecoration(
+          //color: Colors.white,
+            borderRadius: BorderRadius.all(Radius.circular(24.0)),
+            boxShadow: [
+              BoxShadow(
+                blurRadius: 24.0,
+                color: Colors.white,
+              ),
+            ]
+        ),
+
+        margin: const EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 10),
+
+        foregroundDecoration: _response.PRODUCT![index].IS_THE_BEST ?
+        RotatedCornerDecoration.withColor(
+          color: Colors.redAccent,
+          badgeSize: Size(90, 90),
+          textSpan: TextSpan(
+            text: tr('best_price'),
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+          ),
+        ) : null,
+
+        child: Card(
+          shadowColor: Colors.green,
+          color: Colors.white,
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Column(
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(top: 1.0, bottom: 4.0),
+                  child: Row(children: <Widget>[
+                    Flexible(
+                      child:  Text(_response.RST == "1" ? _response.PRODUCT![index].NOM  : "", style: const TextStyle(color: Colors.black,  fontSize: 22), textAlign: TextAlign.start, overflow: TextOverflow.visible,),
+                    ),
+                  ]),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 1.0, bottom: 4.0),
+                  child: Row(children: <Widget>[
+                    Flexible(
+                      child:  Text(_response.RST == "1" ? _response.PRODUCT![index].PRD  : "", style: const TextStyle(color: Colors.blue,  fontSize: 18), textAlign: TextAlign.start, overflow: TextOverflow.visible,),
+                    ),
+                  ]),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 4.0, bottom: 40.0),
+                  child: Row(children: <Widget>[
+                    Icon(Icons.location_pin, color: Colors.orange,),
+                    SizedBox(width: 5,),
+                    Text(_response.PRODUCT![index].REGION, style: const TextStyle(color: Colors.grey, fontSize: 14)),
+                    Spacer(),
+                  ]),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 1.0, bottom: 1.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      _response.PRODUCT![index].HAS_PRM == "1" ?
+                      Row(
+                        children: [
+                          Icon(Icons.price_change , color: Colors.blue,),
+                          SizedBox(width: 5,),
+                          Text(_response.PRODUCT![index].PRM.toStringAsFixed(2) + " DA", style: TextStyle(color: Colors.green, fontSize: 25))
+                        ],
+                      )
+                          :
+                      Visibility(
+                        child: Text(""),
+                        visible: false,
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 1.0, bottom: 1.0),
+                  child: Row(
+                    children: <Widget>[
+                      Icon(Icons.price_change , color: Colors.blue,),
+                      SizedBox(width: 5,),
+                      has_result ?
+                      _response.PRODUCT![index].HAS_PRM == "1" ? Text(_response.PRODUCT![index].PRX.toStringAsFixed(2) + " DA", style: TextStyle(color: Colors.red, fontSize: 25, decoration: TextDecoration.lineThrough)) :
+                      Text(has_result ? _response.PRODUCT![index].PRX.toStringAsFixed(2) + " DA" : "" , style: const TextStyle(color: Colors.green, fontSize: 25,)) :
+                      Visibility(
+                        child: Text(""),
+                        visible: false,
+                      ),
+                      Spacer(),
+                      //Icon(Icons.location_on, color: Colors.green,),
+                      _response.PRODUCT![index].LO != 0
+                          ?
+                      ElevatedButton.icon(
+                          onPressed: () async => {
+                            IntentUtils.openMapsSheet(context, _response.PRODUCT![index].LA, _response.PRODUCT![index].LO),
+                          },
+                          icon: Icon(Icons.golf_course),
+                          label: Text(tr('go'), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.blue),)
+                      )
+                          :
+                      Visibility(
+                        child: Text(""),
+                        visible: false,
+                      ),
+                    ],
+                  ),
+                ),
+                Divider(thickness: 1,),
+                Padding(
+                  padding: const EdgeInsets.only(top: 1.0, bottom: 1.0),
+                  child: Row(
+                    children: <Widget>[
+                      Text(""),
+                      Spacer(),
+                      Icon(Icons.date_range),
+                      Text(tr('last_update') +  DateFormat("dd-MM-yyyy").format(_response.PRODUCT![index].DATE_MAJ), style: const TextStyle(color: Colors.grey, fontSize: 10)),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   Widget showInsertCode(){
@@ -748,7 +675,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
           setState(() {
               isshowResult = true;
               _response = jsonData;
-              if(int.parse(_response.COUNT) > 0 && _response.RST == "1"){
+              if(_response.PRODUCT!.length > 0 && _response.RST == "1"){
                 _response.PRODUCT![0].IS_THE_BEST = true;
               }
               // Anything else you want
@@ -763,11 +690,11 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
             });
           });
 
-          if(_response.RST == "1" && int.parse(_response.COUNT) > 1){
-           // AudioService().playSound(AssetSource('audio/success_sound.mp3'));
+          if(_response.RST == "1" && _response.PRODUCT!.length > 0 ){
+            //AudioService().playSound(AssetSource('audio/success_sound.mp3'));
           }
           jsonData1 = "";
-          //disconnectFromServer();
+          disconnectFromServer();
         },
         onDone: onDone,
         onError: onError,
