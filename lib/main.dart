@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import 'package:overlay_loader_with_app_icon/overlay_loader_with_app_icon.dart';
 import 'package:platform_device_id/platform_device_id.dart';
 import 'package:rotated_corner_decoration/rotated_corner_decoration.dart';
 import 'package:sliding_up_panel2/sliding_up_panel2.dart';
@@ -72,7 +73,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
 
   String? deviceId = 'UNKNOWN';
   String _Platform = 'UNKNOWN';
-  late Timer t;
+  //late Timer t;
   late PostDataAllResult _response;
   late Socket? clientSocket;
   String current_market_name = tr('global_market');
@@ -86,6 +87,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   ScrollController _scrollcontroller = ScrollController();
   DateFormat format = DateFormat("dd/MM/yyyy");
   bool _isfloatingVisible = false;
+  bool _loading = false;
 
   @override
   void initState() {
@@ -115,7 +117,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
       });*/
     }
 
-    t.cancel();
+    /*t.cancel();
     t = Timer(Duration(seconds: 15), () {
       setState(() {
         isshowResult = false;
@@ -123,7 +125,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
         _panelController!.show();
         _response = new PostDataAllResult();
       });
-    });
+    });*/
 
   }
 
@@ -206,12 +208,17 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
           )
         ],
       ),
-        body: SlidingUpPanel(
-          controller: _panelController,
-          renderPanelSheet: false,
-          panelBuilder: showInsertCode,
-          collapsed: _floatingCollapsed(),
-          body: isshowResult ? showResult() : ScanWidget(),
+        body: OverlayLoaderWithAppIcon(
+            isLoading: _loading,
+            circularProgressColor: Colors.blue,
+            appIcon:  Image.asset('assets/images/thinking.png'),
+            child: SlidingUpPanel(
+              controller: _panelController,
+              renderPanelSheet: false,
+              panelBuilder: showInsertCode,
+              collapsed: _floatingCollapsed(),
+              body: isshowResult ? showResult() : ScanWidget(),
+            ),
         ),
       floatingActionButton: new Visibility(
         visible: _isfloatingVisible,
@@ -267,7 +274,6 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
         onTap: () {
           setState(() {
             isshowResult = false;
-            t.cancel();
             _response = new PostDataAllResult();
           });
         },
@@ -313,7 +319,6 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
       onTap: () {
         setState(() {
           isshowResult = false;
-          t.cancel();
           _response = new PostDataAllResult();
         });
       },
@@ -568,13 +573,15 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     try {
       qrCode = await FlutterBarcodeScanner.scanBarcode('#ff6666', 'Cancel', true, ScanMode.DEFAULT);
       print(qrCode);
-      if(qrCode.startsWith("SOUMA_APP")){
-        setState(() {
-          code_market = getValue(qrCode, "CC");
-          current_market_name = getValue(qrCode, "MARKET");
-        });
-      }else{
-        showSnackBarWithKey(tr("error_code_market"));
+      if(qrCode != "-1"){
+        if(qrCode.startsWith("SOUMA_APP")){
+          setState(() {
+            code_market = getValue(qrCode, "CC");
+            current_market_name = getValue(qrCode, "MARKET");
+          });
+        }else{
+          showSnackBarWithKey(tr("error_code_market"));
+        }
       }
 
     } on PlatformException {
@@ -589,21 +596,24 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
       try {
         barcodeScanRes = await FlutterBarcodeScanner.scanBarcode('#ff6666', 'Cancel', true, ScanMode.DEFAULT);
         print(barcodeScanRes);
-        setState(() {
-          code_product = barcodeScanRes;
-        });
-        connectToServer(code_market, code_product);
+        if(barcodeScanRes != "-1"){
+          setState(() {
+            code_product = barcodeScanRes;
+          });
+          connectToServer(code_market, code_product);
+        }
       } on PlatformException {
         barcodeScanRes = 'Failed to get platform version.';
       }
-
   }
 
   Future<void> _navigateToListMarketScreen(BuildContext context) async {
-    if(!mounted)
-    {
-      return;
-    }
+
+    setState(() {
+      isshowResult = false;
+      _panelController!.show();
+    });
+
     try{
 
        var result = await Navigator.of(context).push(
@@ -647,6 +657,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
 
     // reset index result indicator
     setState(() {
+      _loading = true;
       isshowResult = false;
       _response = new PostDataAllResult();
     });
@@ -674,6 +685,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
 
           setState(() {
               isshowResult = true;
+              _loading = false;
               _response = jsonData;
               if(_response.PRODUCT!.length > 0 && _response.RST == "1"){
                 _response.PRODUCT![0].IS_THE_BEST = true;
@@ -681,14 +693,14 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
               // Anything else you want
           });
 
-          t = Timer(Duration(seconds: 15), () {
+          /*t = Timer(Duration(seconds: 15), () {
             setState(() {
               isshowResult = false;
               _isfloatingVisible = false;
               _panelController!.show();
               _response = new PostDataAllResult();
             });
-          });
+          });*/
 
           if(_response.RST == "1" && _response.PRODUCT!.length > 0 ){
             //AudioService().playSound(AssetSource('audio/success_sound.mp3'));
@@ -703,7 +715,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
       await subscription.asFuture<void>();
 
     }).catchError((e) {
-      showSnackBarWithKey(e.toString());
+      showSnackBarWithKey(tr('error_server'));
     });
 
 

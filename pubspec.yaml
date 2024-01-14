@@ -2,7 +2,7 @@ name: souma
 description: "A new Flutter project."
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 24.15.0
+version: 24.16.0
 
 environment:
   sdk: '>=3.1.0-315.0.dev <4.0.0'
@@ -28,6 +28,7 @@ dependencies:
   flutter_svg: # only if you want to use icons as they are svgs
   upgrader: ^8.4.0
   animation_search_bar: ^0.0.10
+  overlay_loader_with_app_icon: ^0.0.3
 
 dev_dependencies:
   flutter_test:

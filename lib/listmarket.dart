@@ -76,23 +76,9 @@ class _ListMarketState extends State<ListMarket> {
                       });
                     },
                     searchTextEditingController: controller),
-              ))),
-     /* appBar: AppBar(
-          title: TextField(
-            controller: _searchController,
-            style: const TextStyle(color: Colors.white),
-            cursorColor: Colors.white,
-            decoration: InputDecoration(
-              hintText: tr('search'),
-              hintStyle: TextStyle(color: Colors.white54),
-              border: InputBorder.none,
-            ),
-            onChanged: (value) {
-              // Perform search functionality here
-            },
+              ),
           ),
-        backgroundColor: Colors.blue,
-      ),*/
+      ),
       body: isLoading ? Loading() : ListMarket(),
     );
   }
