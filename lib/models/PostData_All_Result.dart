@@ -1,4 +1,3 @@
-import 'dart:ffi';
 
 import 'PostData_Product.dart';
 /// CB : "75475756347675"
@@ -26,9 +25,9 @@ class PostDataAllResult {
 }
 
   PostDataAllResult.fromJson(dynamic json) {
-    CB = json['CB'];
-    COUNT = json['COUNT'];
-    RST = json['RST'];
+    CB = json['CB']?.toString();
+    COUNT = json['COUNT']?.toString() ?? "1";
+    RST = json['RST']?.toString() ?? "0";
     if (json['PRODUCT'] != null) {
       PRODUCT = [];
       json['PRODUCT'].forEach((v) { PRODUCT?.add(PostData_Product.fromJson(v)); });

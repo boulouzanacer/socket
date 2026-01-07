@@ -223,8 +223,7 @@ class _ListMarketState extends State<ListMarket> {
 
   void getAllMArketFromServer() async {
 
-    Socket.connect(Env.IP_SERVER, Env.PORT_SERVER, timeout: const Duration(seconds: 5))
-        .then((socket) async {
+    Socket.connect(Env.IP_SERVER, Env.PORT_SERVER, timeout: const Duration(seconds: 5)).then((socket) async {
       setState(() {
         clientSocket = socket;
       });

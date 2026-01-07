@@ -7,18 +7,19 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:overlay_loader_with_app_icon/overlay_loader_with_app_icon.dart';
-import 'package:platform_device_id/platform_device_id.dart';
 import 'package:rotated_corner_decoration/rotated_corner_decoration.dart';
 import 'package:sliding_up_panel2/sliding_up_panel2.dart';
 import 'package:souma/Env.dart';
 import 'package:souma/models/PostData_All_Result.dart';
 import 'package:souma/models/PostData_Market.dart';
 import 'package:souma/utils/AudioService.dart';
+import 'package:souma/utils/DeviceHelper.dart';
 import 'package:souma/utils/IntentUtils.dart';
 import 'package:turn_page_transition/turn_page_transition.dart';
 import 'package:upgrader/upgrader.dart';
+import 'ScanMarketScreen.dart';
+import 'ScanProductScreen.dart';
 import 'listmarket.dart';
 
 Future<void> main() async {
@@ -94,6 +95,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     WidgetsBinding.instance.addPostFrameCallback((_) {});
     _response = new PostDataAllResult();
     _scrollcontroller.addListener(_onScrollEvent);
+    loadInfo();
     super.initState();
   }
 
@@ -129,10 +131,15 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
 
   }
 
+  Future<void> loadInfo() async {
+    Map<String, dynamic> data = await DeviceHelper.deviceData();
+    print(data);
+    deviceId = data['device_id'];
+  }
 
   @override
   Future<void> didChangeDependencies() async {
-    deviceId  = await PlatformDeviceId.getDeviceId;
+    //deviceId  = await PlatformDeviceId.getDeviceId;
     if(Platform.isAndroid){
       _Platform = "ANDROID";
     }else{
@@ -561,50 +568,59 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     );
   }
 
-  Future<void> _navigateToScanMarketScreen(BuildContext context) async {
 
+  Future<void> _navigateToScanMarketScreen(BuildContext context) async {
     setState(() {
-        isshowResult =false;
-        _response = new PostDataAllResult();
+      isshowResult = false;
+      _response = PostDataAllResult();
     });
 
-    String qrCode;
-    // Platform messages may fail, so we use a try/catch PlatformException.
     try {
-      qrCode = await FlutterBarcodeScanner.scanBarcode('#ff6666', 'Cancel', true, ScanMode.DEFAULT);
+      // Push scanning screen and wait for result
+      final qrCode = await Navigator.push<String>(
+        context,
+        MaterialPageRoute(builder: (_) => const ScanMarketScreen()),
+      );
+
       print(qrCode);
-      if(qrCode != "-1"){
-        if(qrCode.startsWith("SOUMA_APP")){
+
+      if (qrCode != null && qrCode != "-1") {
+        if (qrCode.startsWith("SOUMA_APP")) {
           setState(() {
             code_market = getValue(qrCode, "CC");
             current_market_name = getValue(qrCode, "MARKET");
           });
-        }else{
+        } else {
           showSnackBarWithKey(tr("error_code_market"));
         }
       }
-
-    } on PlatformException {
-      qrCode = 'Failed to get platform version.';
+    } catch (e) {
+      print("Error scanning QR code: $e");
     }
-
   }
 
+
+
   Future<void> _navigateToScanProductScreen(BuildContext context) async {
-      String barcodeScanRes;
-      // Platform messages may fail, so we use a try/catch PlatformException.
-      try {
-        barcodeScanRes = await FlutterBarcodeScanner.scanBarcode('#ff6666', 'Cancel', true, ScanMode.DEFAULT);
-        print(barcodeScanRes);
-        if(barcodeScanRes != "-1"){
-          setState(() {
-            code_product = barcodeScanRes;
-          });
-          connectToServer(code_market, code_product);
-        }
-      } on PlatformException {
-        barcodeScanRes = 'Failed to get platform version.';
+    try {
+      // Push the scanning screen and wait for result
+      final barcodeScanRes = await Navigator.push<String>(
+        context,
+        MaterialPageRoute(builder: (_) => const ScanProductScreen()),
+      );
+
+      print(barcodeScanRes);
+
+      if (barcodeScanRes != null && barcodeScanRes != "-1") {
+        setState(() {
+          code_product = barcodeScanRes;
+        });
+        // Call your server connection function
+        connectToServer(code_market, code_product);
       }
+    } catch (e) {
+      print("Error scanning product barcode: $e");
+    }
   }
 
   Future<void> _navigateToListMarketScreen(BuildContext context) async {
@@ -665,8 +681,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     FocusScope.of(context).unfocus();
     codebarreController.clear();
 
-    Socket.connect(Env.IP_SERVER, Env.PORT_SERVER, timeout: const Duration(seconds: 5))
-        .then((socket) async {
+    Socket.connect(Env.IP_SERVER, Env.PORT_SERVER, timeout: const Duration(seconds: 5)).then((socket) async {
       setState(() {
         clientSocket = socket;
       });
@@ -693,15 +708,6 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
               // Anything else you want
           });
 
-          /*t = Timer(Duration(seconds: 15), () {
-            setState(() {
-              isshowResult = false;
-              _isfloatingVisible = false;
-              _panelController!.show();
-              _response = new PostDataAllResult();
-            });
-          });*/
-
           if(_response.RST == "1" && _response.PRODUCT!.length > 0 ){
             //AudioService().playSound(AssetSource('audio/success_sound.mp3'));
           }
@@ -718,8 +724,8 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
       showSnackBarWithKey(tr('error_server'));
     });
 
-
   }
+
 
   String getValue(String data, String key){
     String result = "";
@@ -732,7 +738,6 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
         exitCode;
       }
     }
-
     return result;
   }
 

@@ -12,10 +12,10 @@ class PostData_Market {
 
   factory PostData_Market.fromJson(Map<String, dynamic> json) {
     return PostData_Market(
-      CC: json['CC'],
-      NOM: json['NOM'],
-      COMUNE: json['COMMUNE'],
-      WILAYA: json['WILAYA'],
+      CC: json['CC']?.toString() ?? '/',
+      NOM: json['NOM']?.toString() ?? '/',
+      COMUNE: json['COMMUNE']?.toString() ?? '/',
+      WILAYA: json['WILAYA']?.toString() ?? '/',
     );
   }
 
