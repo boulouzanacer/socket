@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 class ScanProductScreen extends StatefulWidget {
-  const ScanProductScreen({Key? key}) : super(key: key);
+  const ScanProductScreen({super.key});
 
   @override
   State<ScanProductScreen> createState() => _ScanProductScreenState();

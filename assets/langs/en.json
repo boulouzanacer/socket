@@ -31,6 +31,9 @@
   "price": "Price",
   "go": "Go",
   "market_list": "Markets list",
+  "products": "Products",
+  "references": "references",
+  "search_hint": "Name, reference, barcode",
 
   "login": "Login",
   "code_client": "Client code",

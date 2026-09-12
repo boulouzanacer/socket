@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 class Scanner_View extends StatefulWidget {
-  Scanner_View({Key? key, required this.isProduct}) : super(key: key);
+  Scanner_View({super.key, required this.isProduct});
 
   bool isProduct;
 

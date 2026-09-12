@@ -7,6 +7,33 @@ import 'package:easy_localization/easy_localization.dart';
 /// DATE_MAJ : "10/10/2023"
 /// REGION : "MOHAMMADIA - ALGER"
 
+double _safeDouble(dynamic value, [double fallback = 0.0]) {
+  if (value == null) return fallback;
+  String s = value.toString().trim();
+  if (s.isEmpty) return fallback;
+  s = s.replaceAll(',', '.');
+  try {
+    return double.parse(s);
+  } catch (e) {
+    return fallback;
+  }
+}
+
+DateTime _safeDate(String pattern, dynamic value, DateTime fallback) {
+  if (value == null) return fallback;
+  String s = value.toString().trim();
+  if (s.isEmpty) return fallback;
+  try {
+    return DateFormat(pattern).parse(s);
+  } catch (e) {
+    try {
+      return DateTime.parse(s);
+    } catch (e2) {
+      return fallback;
+    }
+  }
+}
+
 class PostData_Product {
 
   String NOM;
@@ -33,18 +60,18 @@ class PostData_Product {
     required this.IS_THE_BEST});
 
   factory PostData_Product.fromJson(Map<String, dynamic> json) {
-    DateFormat format = DateFormat("dd/MM/yyyy");
+    final fallbackDate = DateTime.now();
 
     return PostData_Product(
-      NOM: json['NOM'],
-      PRD: json['PRD'],
-      PRX: double.parse(json['PRX']),
-      HAS_PRM: json['HAS_PRM'],
-      PRM: double.parse(json['PRM']),
-      DATE_MAJ: format.parse(json['DATE_MAJ']),
-      REGION: json['REGION'],
-      LA: double.parse(json['LA']),
-      LO: double.parse(json['LO']),
+      NOM: json['NOM']?.toString() ?? '',
+      PRD: json['PRD']?.toString() ?? '',
+      PRX: _safeDouble(json['PRX']),
+      HAS_PRM: json['HAS_PRM']?.toString() ?? '0',
+      PRM: _safeDouble(json['PRM']),
+      DATE_MAJ: _safeDate("dd/MM/yyyy", json['DATE_MAJ'], fallbackDate),
+      REGION: json['REGION']?.toString() ?? '',
+      LA: _safeDouble(json['LA']),
+      LO: _safeDouble(json['LO']),
       IS_THE_BEST: false,
     );
   }

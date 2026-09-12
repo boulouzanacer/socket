@@ -1,11 +1,11 @@
 name: souma
 description: "A new Flutter project."
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: 'none'
 
 version: 26.01.07
 
 environment:
-  sdk: '>=3.1.0-315.0.dev <4.0.0'
+  sdk: ">=3.1.0 <4.0.0"
 
 dependencies:
   flutter:
@@ -20,13 +20,11 @@ dependencies:
   custom_clippers: ^2.0.0
   mobile_scanner: ^7.1.4
   device_info_plus: ^10.0.1000
-  #flutter_barcode_scanner: ^2.0.0
   sliding_up_panel2: ^3.3.0+1
   rotated_corner_decoration: ^2.1.0+1
   audioplayers: ^6.0.0
-
   map_launcher: ^3.2.0
-  flutter_svg: # only if you want to use icons as they are svgs
+  flutter_svg:
   upgrader: ^10.0.1
   animation_search_bar: ^0.0.10
   overlay_loader_with_app_icon: ^0.0.3
@@ -34,14 +32,19 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-flutter_app_name:
-  name: "souma"
-
-flutter_launcher_name:
-  name: "souma"
   flutter_lints: ^3.0.1
+  flutter_launcher_icons: ^0.13.1
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: assets/icon/app_icon.png
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: assets/icon/app_icon_foreground.png
 
 flutter:
-
   uses-material-design: true
-  assets: [assets/images/, assets/langs/, assets/audio/]
+  assets:
+    - assets/images/
+    - assets/langs/
+    - assets/audio/

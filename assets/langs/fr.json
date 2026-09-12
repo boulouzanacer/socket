@@ -30,6 +30,9 @@
   "price": "Prix",
   "go": "Aller",
   "market_list": "List magasins",
+  "products": "Produits",
+  "references": "références",
+  "search_hint": "Nom, référence, code-barre",
 
 
   "current": "Page actuel",
